@@ -37,7 +37,7 @@ struct ShortcutsTab: View {
             ) {
                 Picker("", selection: $settings.appSettings.volumeHotkeyStep) {
                     ForEach(VolumeHotkeyStep.allCases) { step in
-                        Text(step.description).tag(step)
+                        Text(LocalizedStringKey(step.description)).tag(step)
                     }
                 }
                 .pickerStyle(.menu)

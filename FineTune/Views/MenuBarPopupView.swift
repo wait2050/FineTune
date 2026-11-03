@@ -1169,7 +1169,7 @@ struct MenuBarPopupView: View {
         panel.allowedContentTypes = [UTType.plainText]
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = false
-        panel.message = "Select an AutoEQ ParametricEQ.txt file"
+        panel.message = L10n.string("Select an AutoEQ ParametricEQ.txt file")
         panel.begin { response in
             guard response == .OK, let url = panel.url else { return }
             let name = url.deletingPathExtension().lastPathComponent
@@ -1178,7 +1178,7 @@ struct MenuBarPopupView: View {
                     audioEngine.setAutoEQProfile(for: deviceUID, profileID: profile.id)
                     autoEQImportError = nil
                 } else {
-                    autoEQImportError = "Could not read profile — check file format"
+                    autoEQImportError = L10n.string("Could not read profile — check file format")
                     importErrorClearTask?.cancel()
                     importErrorClearTask = Task {
                         try? await Task.sleep(for: .seconds(3))

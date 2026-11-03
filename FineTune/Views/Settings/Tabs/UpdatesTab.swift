@@ -10,9 +10,9 @@ struct UpdatesTab: View {
         if let date = updateManager.lastUpdateCheckDate {
             let formatter = RelativeDateTimeFormatter()
             formatter.unitsStyle = .abbreviated
-            return "Version \(version) · \(formatter.localizedString(for: date, relativeTo: .now))"
+            return L10n.format("Version %@ · %@", version, formatter.localizedString(for: date, relativeTo: .now))
         }
-        return "Version \(version) · Never checked"
+        return L10n.format("Version %@ · Never checked", version)
     }
 
     private var automaticallyChecksBinding: Binding<Bool> {
@@ -28,6 +28,9 @@ struct UpdatesTab: View {
                 if !updateManager.updatesSupported {
                     Text("This local delay edition is updated from its source project. Automatic updates from the official FineTune release are disabled.")
                         .font(.callout).foregroundStyle(.secondary)
+                    Text("Official source updates are prepared as pull requests in this fork. Install builds from your custom releases to keep Chinese UI and output delay controls.")
+                        .font(.callout).foregroundStyle(.secondary)
+                    Link("View custom releases", destination: URL(string: "https://github.com/wait2050/FineTune/releases")!)
                 }
                 SettingsSection("Software Updates") {
                     SettingsRow(

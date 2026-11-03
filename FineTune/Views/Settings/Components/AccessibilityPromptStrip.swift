@@ -28,7 +28,7 @@ struct AccessibilityPromptStrip: View {
                 .frame(width: 28, alignment: .center)
                 .contentTransition(.symbolEffect(.replace))
 
-            Text(message)
+            Text(LocalizedStringKey(message))
                 .font(DesignTokens.Typography.rowDescription)
                 .foregroundStyle(DesignTokens.Colors.textSecondary)
                 .lineLimit(2)

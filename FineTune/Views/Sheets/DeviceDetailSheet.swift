@@ -56,7 +56,7 @@ struct DeviceDetailSheet: View {
                 processName: viewModel.hogModeOwnerName
             ) {
                 separator
-                hogModeRow(hogLine)
+                hogModeRow(localizedHogLine(fallback: hogLine))
             }
 
             if Self.shouldShowToggle(autoTier: autoDetectedTier) {
@@ -78,10 +78,18 @@ struct DeviceDetailSheet: View {
         .onDisappear { viewModel.stop() }
     }
 
+    private func localizedHogLine(fallback: String) -> String {
+        let owner = viewModel.info.hogModeOwner
+        if let name = viewModel.hogModeOwnerName, !name.isEmpty {
+            return L10n.format("In exclusive use by %@ (PID %lld)", name, Int(owner))
+        }
+        return L10n.format("In exclusive use by PID %lld", Int(owner))
+    }
+
     // MARK: - Auto badge
 
     private var autoBadge: some View {
-        Text("Auto: \(Self.tierDisplayName(autoDetectedTier))")
+        Text("Auto: \(L10n.string(Self.tierDisplayName(autoDetectedTier)))")
             .font(.system(size: 9, weight: .semibold))
             .foregroundStyle(DesignTokens.Colors.textSecondary)
             .padding(.horizontal, 6)
@@ -90,7 +98,7 @@ struct DeviceDetailSheet: View {
                 Capsule()
                     .fill(DesignTokens.Colors.glassFillStrong)
             )
-            .accessibilityLabel("Auto-detected volume control: \(Self.tierDisplayName(autoDetectedTier))")
+            .accessibilityLabel("Auto-detected volume control: \(L10n.string(Self.tierDisplayName(autoDetectedTier)))")
     }
 
     // MARK: - Separator
@@ -108,7 +116,7 @@ struct DeviceDetailSheet: View {
             Image(systemName: "lock.fill")
                 .font(.system(size: 10, weight: .semibold))
                 .foregroundStyle(DesignTokens.Colors.textSecondary)
-            Text(text)
+            Text(LocalizedStringKey(text))
                 .font(DesignTokens.Typography.caption)
                 .foregroundStyle(DesignTokens.Colors.textSecondary)
             Spacer(minLength: 0)
@@ -124,7 +132,7 @@ struct DeviceDetailSheet: View {
             Image(systemName: "exclamationmark.triangle.fill")
                 .font(.system(size: 10, weight: .semibold))
                 .foregroundStyle(DesignTokens.Colors.mutedIndicator)
-            Text(text)
+            Text(LocalizedStringKey(text))
                 .font(DesignTokens.Typography.caption)
                 .foregroundStyle(DesignTokens.Colors.textSecondary)
             Spacer(minLength: 0)

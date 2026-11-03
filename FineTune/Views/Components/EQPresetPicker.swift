@@ -98,7 +98,7 @@ struct EQPresetPicker: View {
             popoverWidth: 170,
             onSelect: handleSelect
         ) { selected in
-            Text(selected?.name ?? "Custom")
+            Text(selected?.isUserPreset == true ? (selected?.name ?? "") : L10n.string(selected?.name ?? "Custom"))
         } itemContent: { item, isSelected in
             if item.isUserPreset {
                 UserPresetItemView(
@@ -121,7 +121,7 @@ private struct BuiltInPresetItemView: View {
 
     var body: some View {
         HStack(spacing: DesignTokens.Spacing.xs) {
-            Text(item.name)
+            Text(LocalizedStringKey(item.name))
                 .lineLimit(1)
             Spacer(minLength: DesignTokens.Spacing.xs)
             if isSelected {

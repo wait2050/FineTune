@@ -85,18 +85,18 @@ struct DevicePicker: View {
             if count == 1 {
                 return validMultiSelections[0].name
             }
-            return "\(count) devices"
+            return L10n.format("%lld devices", count)
         }
     }
 
     /// Text for single-mode display (also used as fallback for empty multi-mode)
     private var singleModeText: String {
         if isFollowingDefault {
-            return "System Audio"
+            return L10n.string("System Audio")
         } else if let device = devices.first(where: { $0.uid == selectedDeviceUID }) {
             return device.name
         }
-        return "Select"
+        return L10n.string("Select")
     }
 
     @ViewBuilder

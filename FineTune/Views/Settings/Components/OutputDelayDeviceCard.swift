@@ -35,8 +35,8 @@ struct OutputDelayNumberField: NSViewRepresentable {
         field.focusRingType = .exterior
         field.stringValue = Self.text(value)
         field.setContentHuggingPriority(.defaultLow, for: .horizontal)
-        field.setAccessibilityLabel("Delay in milliseconds for \(deviceName)")
-        field.setAccessibilityHelp("Left and right arrows: 1 millisecond. Shift: 10. Option: 50.")
+        field.setAccessibilityLabel(L10n.format("Delay in milliseconds for %@", deviceName))
+        field.setAccessibilityHelp(L10n.string("Left and right arrows: 1 millisecond. Shift: 10. Option: 50."))
         return field
     }
 
@@ -135,7 +135,7 @@ struct OutputDelayDeviceCard: View {
                         .font(.system(size: 13, weight: .semibold))
                         .lineLimit(1)
                         .help(device.name)
-                    Text(displayedValue == 0 ? "No added delay" : "Added delay")
+                    Text(LocalizedStringKey(displayedValue == 0 ? "No added delay" : "Added delay"))
                         .font(.system(size: 11))
                         .foregroundStyle(.secondary)
                 }
@@ -196,8 +196,8 @@ struct OutputDelayDeviceCard: View {
             .fixedSize()
             .buttonRepeatBehavior(.enabled)
             .disabled(delta < 0 ? displayedValue == 0 : displayedValue == 2000)
-            .help("\(delta > 0 ? "Increase" : "Decrease") delay by \(abs(delta)) ms")
-            .accessibilityLabel("\(delta > 0 ? "Increase" : "Decrease") delay by \(abs(delta)) milliseconds for \(device.name)")
+            .help("\(L10n.string(delta > 0 ? "Increase" : "Decrease")) delay by \(abs(delta)) ms")
+            .accessibilityLabel("\(L10n.string(delta > 0 ? "Increase" : "Decrease")) delay by \(abs(delta)) milliseconds for \(device.name)")
     }
 
     private func adjust(_ delta: Double) {

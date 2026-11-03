@@ -105,9 +105,9 @@ struct FineTuneApp: App {
         if !isTestHost && FineTuneRuntime.isDelayEdition,
            NSWorkspace.shared.runningApplications.contains(where: { $0.bundleIdentifier == "com.finetuneapp.FineTune" }) {
             let alert = NSAlert()
-            alert.messageText = "FineTune is already running"
-            alert.informativeText = "Quit FineTune from its menu bar menu, then open FineTune Delay. Only one version should control your audio at a time."
-            alert.addButton(withTitle: "Close FineTune Delay")
+            alert.messageText = L10n.string("FineTune is already running")
+            alert.informativeText = L10n.string("Quit FineTune from its menu bar menu, then open FineTune Delay. Only one version should control your audio at a time.")
+            alert.addButton(withTitle: L10n.string("Close FineTune Delay"))
             alert.runModal()
             exit(0)
         }

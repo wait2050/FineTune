@@ -19,6 +19,7 @@ struct OutputDelayCardRenderTests {
             .frame(width: 648)
             .background(DesignTokens.Colors.recessedBackground)
             .environment(\.colorScheme, scheme)
+            .environment(\.locale, Locale(identifier: "zh-Hans"))
             let host = NSHostingView(rootView: content)
             host.appearance = NSAppearance(named: appearance)
             host.frame = NSRect(x: 0, y: 0, width: 648, height: 340)

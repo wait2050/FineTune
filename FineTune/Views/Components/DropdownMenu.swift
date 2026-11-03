@@ -314,7 +314,7 @@ private struct GroupedDropdownContentView<Section: Identifiable & Hashable, Item
             VStack(alignment: .leading, spacing: 2) {
                 ForEach(sections) { section in
                     // Section header
-                    Text(sectionTitle(section))
+                    Text(LocalizedStringKey(sectionTitle(section)))
                         .font(.system(size: 10, weight: .semibold))
                         .foregroundStyle(.secondary)
                         .padding(.horizontal, 10)

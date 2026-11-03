@@ -146,7 +146,7 @@ struct AppRow: View {
                         isFollowingDefault: isFollowingDefault,
                         mode: deviceSelectionMode
                     ) {
-                        Text(subtitle)
+                        Text(deviceSelectionMode == .multi ? L10n.routingSubtitle(subtitle) : subtitle)
                             .font(.system(size: 9))
                             .foregroundStyle(DesignTokens.Colors.textTertiary)
                             .lineLimit(1)

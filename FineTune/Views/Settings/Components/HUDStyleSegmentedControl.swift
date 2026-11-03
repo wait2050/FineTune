@@ -51,7 +51,7 @@ private struct HUDStyleOption: View {
                 }
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(label)
+        .accessibilityLabel(Text(LocalizedStringKey(label)))
     }
 
     @ViewBuilder

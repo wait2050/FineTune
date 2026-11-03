@@ -1,0 +1,57 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "NSAudioCaptureUsageDescription": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FineTune needs access to control volume levels for individual applications."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FineTune 需要录制系统音频的权限，以调节各应用音量并向多个设备同步播放声音。"
+          }
+        }
+      }
+    },
+    "NSMicrophoneUsageDescription": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FineTune needs microphone access to capture audio from apps using input-capable devices."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当音频设备具备输入功能时，FineTune 需要麦克风权限来读取应用音频。"
+          }
+        }
+      }
+    },
+    "NSBluetoothAlwaysUsageDescription": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FineTune uses Bluetooth to connect paired audio devices from the menu bar."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FineTune 使用蓝牙从菜单栏连接已配对的音频设备。"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

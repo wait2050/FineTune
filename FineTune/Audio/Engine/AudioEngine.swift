@@ -817,7 +817,7 @@ final class AudioEngine {
                     catch { logger.error("Delay rollback failed: \(error.localizedDescription)") }
                 }
             }
-            outputDelayError = "Could not change output delay mode: \(error.localizedDescription)"
+            outputDelayError = L10n.format("Could not change output delay mode: %@", error.localizedDescription)
         }
     }
 
@@ -1673,8 +1673,8 @@ final class AudioEngine {
 
     private func showReconnectNotification(deviceName: String, affectedApps: [AudioApp]) {
         let content = UNMutableNotificationContent()
-        content.title = "Audio Device Reconnected"
-        content.body = "\"\(deviceName)\" is back. \(affectedApps.count) app(s) switched back."
+        content.title = L10n.string("Audio Device Reconnected")
+        content.body = L10n.format("\"%@\" is back. %lld app(s) switched back.", deviceName, affectedApps.count)
         content.sound = nil
 
         let request = UNNotificationRequest(
@@ -1692,8 +1692,8 @@ final class AudioEngine {
 
     private func showDisconnectNotification(deviceName: String, fallbackName: String, affectedApps: [AudioApp]) {
         let content = UNMutableNotificationContent()
-        content.title = "Audio Device Disconnected"
-        content.body = "\"\(deviceName)\" disconnected. \(affectedApps.count) app(s) switched to \(fallbackName)"
+        content.title = L10n.string("Audio Device Disconnected")
+        content.body = L10n.format("\"%@\" disconnected. %lld app(s) switched to %@", deviceName, affectedApps.count, fallbackName)
         content.sound = nil
 
         let request = UNNotificationRequest(
@@ -1808,8 +1808,8 @@ final class AudioEngine {
 
     private func showDefaultChangedNotification(newDeviceName: String, affectedApps: [AudioApp]) {
         let content = UNMutableNotificationContent()
-        content.title = "Default Audio Device Changed"
-        content.body = "\(affectedApps.count) app(s) switched to \"\(newDeviceName)\""
+        content.title = L10n.string("Default Audio Device Changed")
+        content.body = L10n.format("%lld app(s) switched to \"%@\"", affectedApps.count, newDeviceName)
         content.sound = nil
 
         let request = UNNotificationRequest(

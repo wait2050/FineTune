@@ -112,7 +112,7 @@ nonisolated final class OutputDelayBufferList: @unchecked Sendable {
 
     convenience init(deviceID: AudioDeviceID, sampleRate: Double, control: OutputDelayControl) throws {
         guard sampleRate.isFinite, sampleRate > 0, sampleRate <= 768_000 else {
-            throw NSError(domain: "OutputDelay", code: 1, userInfo: [NSLocalizedDescriptionKey: "Unsupported delay sample rate."])
+            throw NSError(domain: "OutputDelay", code: 1, userInfo: [NSLocalizedDescriptionKey: L10n.string("Unsupported delay sample rate.")])
         }
         var address = AudioObjectPropertyAddress(
             mSelector: kAudioDevicePropertyStreamConfiguration,
@@ -122,7 +122,7 @@ nonisolated final class OutputDelayBufferList: @unchecked Sendable {
         var size: UInt32 = 0
         var status = AudioObjectGetPropertyDataSize(deviceID, &address, 0, nil, &size)
         guard status == noErr, size >= MemoryLayout<AudioBufferList>.size else {
-            throw NSError(domain: NSOSStatusErrorDomain, code: Int(status), userInfo: [NSLocalizedDescriptionKey: "Cannot read delay input layout."])
+            throw NSError(domain: NSOSStatusErrorDomain, code: Int(status), userInfo: [NSLocalizedDescriptionKey: L10n.string("Cannot read delay input layout.")])
         }
         let raw = UnsafeMutableRawPointer.allocate(byteCount: Int(size), alignment: MemoryLayout<AudioBufferList>.alignment)
         defer { raw.deallocate() }
@@ -136,15 +136,15 @@ nonisolated final class OutputDelayBufferList: @unchecked Sendable {
 
     init(channels: [Int], sampleRate: Double, control: OutputDelayControl) throws {
         guard sampleRate.isFinite, sampleRate > 0, sampleRate <= 768_000 else {
-            throw NSError(domain: "OutputDelay", code: 1, userInfo: [NSLocalizedDescriptionKey: "Unsupported delay sample rate."])
+            throw NSError(domain: "OutputDelay", code: 1, userInfo: [NSLocalizedDescriptionKey: L10n.string("Unsupported delay sample rate.")])
         }
         guard !channels.isEmpty, channels.allSatisfy({ $0 > 0 && $0 <= 64 }) else {
-            throw NSError(domain: "OutputDelay", code: 2, userInfo: [NSLocalizedDescriptionKey: "Unsupported delay input layout."])
+            throw NSError(domain: "OutputDelay", code: 2, userInfo: [NSLocalizedDescriptionKey: L10n.string("Unsupported delay input layout.")])
         }
         let historyFrames = Int(ceil(sampleRate * OutputDelayControl.maximumMilliseconds / 1000)) + 1
         let sampleBudget = 64 * 1024 * 1024 / MemoryLayout<Float>.size
         guard channels.reduce(0, +) <= sampleBudget / (historyFrames + maximumFrames) else {
-            throw NSError(domain: "OutputDelay", code: 3, userInfo: [NSLocalizedDescriptionKey: "This device needs too much delay-buffer memory. Disable compensation for this route."])
+            throw NSError(domain: "OutputDelay", code: 3, userInfo: [NSLocalizedDescriptionKey: L10n.string("This device needs too much delay-buffer memory. Disable compensation for this route.")])
         }
         self.control = control
         let scratchBytes = MemoryLayout<AudioBufferList>.size + (channels.count - 1) * MemoryLayout<AudioBuffer>.stride
