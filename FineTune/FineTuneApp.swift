@@ -101,6 +101,9 @@ struct FineTuneApp: App {
     }
 
     init() {
+        if CommandLine.arguments.contains(CalibrationSourceProcess.argument) {
+            CalibrationSourceProcess.runChild()
+        }
         let isTestHost = FineTuneRuntime.isUnitTestHost
         if !isTestHost && FineTuneRuntime.isDelayEdition,
            NSWorkspace.shared.runningApplications.contains(where: { $0.bundleIdentifier == "com.finetuneapp.FineTune" }) {

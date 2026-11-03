@@ -26,6 +26,7 @@ struct AudioTab: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
                 outputDelaySection
+                DelayCalibrationView(audioEngine: audioEngine, settings: settings)
                 volumeSection
                 devicesSection
             }

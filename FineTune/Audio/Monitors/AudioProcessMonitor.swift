@@ -214,7 +214,8 @@ final class AudioProcessMonitor: AudioProcessMonitoring {
             var appsByPID: [pid_t: AudioApp] = [:]
 
             for objectID in processIDs {
-                guard let pid = try? objectID.readProcessPID(), pid != myPID else { continue }
+                guard let pid = try? objectID.readProcessPID(), pid != myPID,
+                      pid != CalibrationSourceProcess.activePID else { continue }
                 guard objectID.readProcessIsRunning() else { continue }
 
                 // Try to find the parent app (for helper processes like Safari Graphics and Media)

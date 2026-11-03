@@ -24,13 +24,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "FineTune needs microphone access to capture audio from apps using input-capable devices."
+            "value": "FineTune uses the microphone to measure output timing during automatic delay calibration and to capture audio from input-capable devices."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "当音频设备具备输入功能时，FineTune 需要麦克风权限来读取应用音频。"
+            "value": "FineTune 在自动延迟校准时使用麦克风测量各输出的发声时间，也可能用于读取具备输入功能的音频设备。校准录音只在本机内存中分析，不会上传或保存。"
           }
         }
       }

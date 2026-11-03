@@ -1,6 +1,6 @@
 # FineTune: manual output-delay edition
 
-This branch adds opt-in, per-output manual delay to FineTune (upstream base `2285279`, v1.9.0). It does not claim automatic acoustic synchronization or fix the upstream Bluetooth/video latency bugs.
+This branch adds opt-in, per-output delay to FineTune (upstream base `2285279`, v1.9.0), with synchronized test playback and [microphone-based calibration](CALIBRATION.zh-CN.md). Acoustic calibration requires a wired/USB microphone that can hear both outputs; continuous acoustic drift correction is not implemented.
 
 ## Build and use
 
@@ -78,4 +78,4 @@ The device cards were additionally rendered offscreen in native AppKit/SwiftUI a
 
 ### Simplified Chinese edition
 
-The fork includes standard String Catalogs with 332 UI entries plus localized permission descriptions. Runtime-only labels are localized at presentation boundaries; raw settings/UIDs and user preset names remain unchanged. English remains the development language and fallback. The compiled Chinese/English resources and substitution tokens are tested; local regression now passes 785 tests. See `UPSTREAM_SYNC.zh-CN.md` for the public fork's review-based upstream synchronization and release pipeline.
+The fork includes standard String Catalogs with 374 UI entries plus localized permission descriptions. Runtime-only labels are localized at presentation boundaries; raw settings/UIDs and user preset names remain unchanged. English remains the development language and fallback. The compiled Chinese/English resources and substitution tokens are tested; local regression now passes 800 tests. See `UPSTREAM_SYNC.zh-CN.md` for the public fork's review-based upstream synchronization and release pipeline.

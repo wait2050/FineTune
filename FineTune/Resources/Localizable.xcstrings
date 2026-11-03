@@ -133,6 +133,17 @@
         }
       }
     },
+    "%lld ms": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld ms"
+          }
+        }
+      }
+    },
     "%lld results": {
       "extractionState": "manual",
       "localizations": {
@@ -276,6 +287,17 @@
         }
       }
     },
+    "About 16 seconds · 3 measurements per output": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "约 16 秒 · 每个输出测量 3 次"
+          }
+        }
+      }
+    },
     "Access granted — volume keys now control FineTune.": {
       "extractionState": "manual",
       "localizations": {
@@ -353,6 +375,28 @@
         }
       }
     },
+    "An audio device disconnected or changed format. Select the devices again and repeat the test.": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "音频设备已断开或格式发生变化。请重新选择设备后再次测试。"
+          }
+        }
+      }
+    },
+    "Analyzing recorded test sounds": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在分析测试音"
+          }
+        }
+      }
+    },
     "App Mute": {
       "extractionState": "manual",
       "localizations": {
@@ -382,6 +426,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "提高应用音量"
+          }
+        }
+      }
+    },
+    "Apply compensation": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "应用补偿"
           }
         }
       }
@@ -551,6 +606,17 @@
         }
       }
     },
+    "Bring your outputs into sync": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "让两个输出同步发声"
+          }
+        }
+      }
+    },
     "Built-in": {
       "extractionState": "manual",
       "localizations": {
@@ -646,6 +712,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "自动检查新版本"
+          }
+        }
+      }
+    },
+    "Choose a wired or USB microphone. AirPods and other Bluetooth microphones cannot measure normal Bluetooth playback latency reliably.": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请选择有线或 USB 麦克风。AirPods 等蓝牙麦克风无法可靠测量日常蓝牙播放模式的延迟。"
           }
         }
       }
@@ -793,6 +870,17 @@
         }
       }
     },
+    "Compensation applied": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已应用补偿"
+          }
+        }
+      }
+    },
     "Computers & Displays": {
       "extractionState": "manual",
       "localizations": {
@@ -844,6 +932,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "连接"
+          }
+        }
+      }
+    },
+    "Connect a wired or USB microphone for automatic calibration.": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "接入有线或 USB 麦克风，即可自动校准。"
           }
         }
       }
@@ -1079,6 +1178,17 @@
         }
       }
     },
+    "Delay test & calibration": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "延迟测试与校准"
+          }
+        }
+      }
+    },
     "Delete preset": {
       "extractionState": "manual",
       "localizations": {
@@ -1211,6 +1321,28 @@
         }
       }
     },
+    "Driver estimate · verify by ear": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设备报告估算 · 需要试听确认"
+          }
+        }
+      }
+    },
+    "Driver estimates may omit Bluetooth buffering. They are a starting point, not a measured result.": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设备报告可能不含蓝牙内部缓冲，估算值仅供起步参考。精确校准请使用麦克风实测。"
+          }
+        }
+      }
+    },
     "EQ": {
       "extractionState": "manual",
       "localizations": {
@@ -1218,6 +1350,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "均衡器"
+          }
+        }
+      }
+    },
+    "Echoes or background audio made the result ambiguous. Move closer and test in a quiet room.": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "回声或背景音干扰了测量。请缩短收音距离，并在安静的房间中重试。"
           }
         }
       }
@@ -1427,6 +1570,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "FineTune 需要辅助功能权限来接管 F10 / F11 / F12。"
+          }
+        }
+      }
+    },
+    "First output": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "输出 A"
           }
         }
       }
@@ -1981,6 +2135,50 @@
         }
       }
     },
+    "Measured compensation": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "实测补偿建议"
+          }
+        }
+      }
+    },
+    "Measurement microphone": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "测量麦克风"
+          }
+        }
+      }
+    },
+    "Measuring first output": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在测量输出 A"
+          }
+        }
+      }
+    },
+    "Measuring second output": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在测量输出 B"
+          }
+        }
+      }
+    },
     "Media": {
       "extractionState": "manual",
       "localizations": {
@@ -2043,6 +2241,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "菜单栏"
+          }
+        }
+      }
+    },
+    "Microphone access is required for acoustic calibration. Enable it in System Settings → Privacy & Security → Microphone.": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "实测校准需要麦克风权限。请前往「系统设置 → 隐私与安全性 → 麦克风」中开启。"
           }
         }
       }
@@ -2421,6 +2630,17 @@
         }
       }
     },
+    "Play sync test": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "播放同步测试音"
+          }
+        }
+      }
+    },
     "Playing": {
       "extractionState": "manual",
       "localizations": {
@@ -2428,6 +2648,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "正在播放"
+          }
+        }
+      }
+    },
+    "Playing synchronized test sounds": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在播放同步测试音"
           }
         }
       }
@@ -2461,6 +2692,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "面板大小"
+          }
+        }
+      }
+    },
+    "Preparing audio devices": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在准备音频设备"
           }
         }
       }
@@ -2575,6 +2817,28 @@
         }
       }
     },
+    "Read device estimate": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "读取设备延迟估算"
+          }
+        }
+      }
+    },
+    "Ready to test": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "准备测试"
+          }
+        }
+      }
+    },
     "Registers FineTune in the Accessibility list and opens System Settings.": {
       "extractionState": "manual",
       "localizations": {
@@ -2648,6 +2912,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "调整设备顺序"
+          }
+        }
+      }
+    },
+    "Repeat spread: %.1f ms · 3 measurements per output": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重复测量差异：%.1f ms · 每个输出测量 3 次"
+          }
+        }
+      }
+    },
+    "Repeated measurements did not agree. Pause other audio, keep the microphone still, and try again.": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "多次测量结果不稳定。请暂停其他音频，保持麦克风不动后重试。"
           }
         }
       }
@@ -2839,6 +3125,17 @@
         }
       }
     },
+    "Second output": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "输出 B"
+          }
+        }
+      }
+    },
     "Secondary": {
       "extractionState": "manual",
       "localizations": {
@@ -2861,6 +3158,17 @@
         }
       }
     },
+    "Select a device": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "选择设备"
+          }
+        }
+      }
+    },
     "Select an AutoEQ ParametricEQ.txt file": {
       "extractionState": "manual",
       "localizations": {
@@ -2868,6 +3176,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "选择 AutoEQ 的 ParametricEQ.txt 文件"
+          }
+        }
+      }
+    },
+    "Select both devices in each app's output picker to play through them together. Recheck after reconnecting Bluetooth.": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在各应用的输出菜单中勾选这两个设备，即可同时播放。蓝牙重连后建议重新测试。"
           }
         }
       }
@@ -3125,6 +3444,28 @@
         }
       }
     },
+    "Start automatic calibration": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "开始自动校准"
+          }
+        }
+      }
+    },
+    "Stop": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "停止"
+          }
+        }
+      }
+    },
     "Stop ignoring": {
       "extractionState": "manual",
       "localizations": {
@@ -3191,6 +3532,83 @@
         }
       }
     },
+    "Test complete": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "测试完成"
+          }
+        }
+      }
+    },
+    "Test sounds use your current compensation. Pause music first and keep headphone volume comfortable.": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "测试音沿用当前延迟补偿。请先暂停音乐，并将耳机音量调到舒适大小。"
+          }
+        }
+      }
+    },
+    "Test stopped": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "测试已停止"
+          }
+        }
+      }
+    },
+    "Test your current delays, or use a wired microphone to measure both outputs. Nothing changes until you apply a result.": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "试听当前延迟，或用有线麦克风测量两个输出。应用结果前，现有设置保持不变。"
+          }
+        }
+      }
+    },
+    "The measured difference is outside the supported 0–2000 ms compensation range.": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "测量结果超出 0–2000 ms 的补偿范围。"
+          }
+        }
+      }
+    },
+    "The microphone is used only during calibration. Recordings stay in memory and are discarded afterward.": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "仅在校准期间使用麦克风。录音只在内存中分析，结束后丢弃。"
+          }
+        }
+      }
+    },
+    "The microphone recording clipped. Lower the output volume or move the microphone farther away.": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "麦克风录音出现削波。请降低播放音量，或将麦克风稍微移远后重试。"
+          }
+        }
+      }
+    },
     "The system disabled FineTune's event tap — usually after a sleep/wake cycle or a main-thread stall. Retry to reinstall it.": {
       "extractionState": "manual",
       "localizations": {
@@ -3198,6 +3616,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "系统已停用 FineTune 的按键监听，通常发生在睡眠唤醒之后。点击重试即可恢复。"
+          }
+        }
+      }
+    },
+    "The test audio source could not start. Check audio capture permission and reconnect the selected devices.": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法启动测试音源。请检查系统音频录制权限，并重新连接所选设备。"
+          }
+        }
+      }
+    },
+    "The test sound was too quiet. Move the AirPods sound outlet closer to the selected microphone, check both output volumes, and try again.": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未清楚测到测试音。请将 AirPods 发声口靠近所选麦克风，检查两个输出的音量后重试。"
           }
         }
       }
@@ -3312,6 +3752,17 @@
         }
       }
     },
+    "Undo calibration": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "撤销本次校准"
+          }
+        }
+      }
+    },
     "Unmute": {
       "extractionState": "manual",
       "localizations": {
@@ -3407,6 +3858,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "使用 FineTune 的软件音量"
+          }
+        }
+      }
+    },
+    "Use a wired headset mic or USB microphone. Hold the AirPods sound outlet near it so it can hear both outputs; keep the mic still. Bluetooth microphones are excluded to avoid changing playback mode.": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "选择有线耳机麦克风或 USB 麦克风。将 AirPods 发声口靠近麦克风，让它能同时听见耳机与扬声器，期间保持麦克风不动。蓝牙麦克风不会用于校准，以免改变播放模式。"
           }
         }
       }
