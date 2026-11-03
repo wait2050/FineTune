@@ -1,52 +1,67 @@
-name: CI
+name: Custom edition CI
 
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      ref:
+        description: Commit or branch to verify
+        required: false
+        type: string
+        default: ''
+
+permissions:
+  contents: read
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: custom-ci-${{ github.workflow }}-${{ inputs.ref || github.ref }}
   cancel-in-progress: true
 
 jobs:
   build-and-test:
     runs-on: macos-26
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Xcode
-        uses: maxim-lobanov/setup-xcode@v1
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.ref }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: latest-stable
-
-      - name: Build
+      - name: Test with isolated settings and no audio capture
         run: |
-          xcodebuild build \
-            -project FineTune.xcodeproj \
-            -scheme FineTune \
-            -configuration Debug \
-            CODE_SIGN_IDENTITY=- \
-            CODE_SIGNING_REQUIRED=NO
-
-      - name: Test
+          xcodebuild test -project FineTune.xcodeproj -scheme FineTune \
+            -configuration Debug -derivedDataPath build/DerivedData \
+            -IDEPackageEnablePrebuilts=NO -skip-testing:FineTuneUITests \
+            -parallel-testing-enabled NO -resultBundlePath build/TestResults.xcresult \
+            CODE_SIGN_IDENTITY=- CODE_SIGNING_REQUIRED=NO \
+            PRODUCT_BUNDLE_IDENTIFIER=com.finetuneapp.FineTune.DelayTestHost \
+            FINETUNE_URL_SCHEME=finetune-delay-test \
+            'OTHER_SWIFT_FLAGS=$(inherited) -D ENABLE_TCC_SPI -D FINETUNE_TEST_HOST'
+      - name: Check Chinese translation coverage and format arguments
         run: |
-          xcodebuild test \
-            -project FineTune.xcodeproj \
-            -scheme FineTune \
-            -configuration Debug \
-            -skip-testing:FineTuneUITests \
-            CODE_SIGN_IDENTITY=- \
-            CODE_SIGNING_REQUIRED=NO \
-            -resultBundlePath build/TestResults.xcresult
-
-      - name: Upload test results
+          python3 scripts/check-localization.py \
+            --stringsdata-root build/DerivedData/Build/Intermediates.noindex/FineTune.build
+      - name: Build custom edition and verify its package
+        run: |
+          ./scripts/build-delay-edition.sh
+          codesign --verify --deep --strict "build/FineTune Delay.app"
+          unzip -tq build/FineTune-Delay-macOS.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: FineTune-CN-macOS
+          path: build/FineTune-Delay-macOS.zip
+          if-no-files-found: error
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
         if: always()
-        uses: actions/upload-artifact@v4
         with:
           name: test-results
           path: build/TestResults.xcresult
-          retention-days: 7
+          retention-days: 14

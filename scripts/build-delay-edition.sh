@@ -1,6 +1,10 @@
 #!/bin/bash
 set -euo pipefail
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+UPSTREAM_TAG="$(git -C "$PROJECT_DIR" describe --tags --match 'v[0-9]*' --abbrev=0 2>/dev/null || true)"
+TASK_VERSION="${FINETUNE_VERSION:-${UPSTREAM_TAG#v}}"
+TASK_VERSION="${TASK_VERSION:-1.9.0}"
+TASK_VERSION="$(python3 -c 'import re,sys; m=re.match(r"(\d+\.\d+\.\d+)", sys.argv[1]); print(m[1] if m else "1.9.0")' "$TASK_VERSION")"
 xcodebuild build \
     -project "$PROJECT_DIR/FineTune.xcodeproj" \
     -scheme FineTune -configuration Release \
@@ -11,7 +15,8 @@ xcodebuild build \
     ENABLE_HARDENED_RUNTIME=NO \
     PRODUCT_BUNDLE_IDENTIFIER=com.finetuneapp.FineTune.Delay \
     INFOPLIST_KEY_CFBundleDisplayName="FineTune Delay" \
-    MARKETING_VERSION=1.9.0 \
+    MARKETING_VERSION="$TASK_VERSION" \
+    CURRENT_PROJECT_VERSION="${GITHUB_RUN_NUMBER:-2}" \
     FINETUNE_URL_SCHEME=finetune-delay
 
 # Never replace a running executable in place. Its mapped code/signature may still

@@ -1,3 +1,8 @@
+> **中文延迟增强版 / Chinese delay edition**
+> 本公开 Fork 保留官方功能，增加独立设备延迟、±10/±50 ms 与键盘微调、简体中文界面。
+> [下载定制版](https://github.com/wait2050/FineTune/releases/latest) · [使用说明](OUTPUT_DELAY.zh-CN.md) · [如何同步官方更新](UPSTREAM_SYNC.zh-CN.md)
+> 请安装本 Fork 的发布包；官方安装包不包含这些定制功能。下方保留官方项目说明及署名。
+
 <img src="assets/icon.png" width="170" height="170" alt="FineTune 应用图标" align="left"/>
 
 <h3>FineTune</h3>
@@ -7,6 +12,10 @@
 <a href="https://github.com/ronitsingh10/FineTune/releases/latest/download/FineTune.dmg"><img src="assets/download-badge.svg" alt="下载 macOS 版本" height="48"/></a>
 
 <br clear="all"/>
+
+简体中文控件预览（测试样例数值，不代表正在使用的设备设置）：
+
+![独立延迟和微调控件](assets/chinese-delay-controls.png)
 
 <p align="center">
   <a href="https://github.com/ronitsingh10/FineTune/releases/latest"><img src="https://img.shields.io/github/v/release/ronitsingh10/FineTune?style=for-the-badge&labelColor=1c1c1e&color=0A84FF&logo=github&logoColor=white" alt="最新版本"></a>

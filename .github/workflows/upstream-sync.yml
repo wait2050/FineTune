@@ -1,0 +1,102 @@
+name: Prepare official upstream update
+
+on:
+  schedule:
+    - cron: '19 2 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: prepare-upstream-update
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    if: github.repository == 'wait2050/FineTune'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    outputs:
+      changed: ${{ steps.sync.outputs.changed }}
+      sha: ${{ steps.sync.outputs.sha }}
+      pr: ${{ steps.sync.outputs.pr }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Merge upstream without replacing custom main
+        id: sync
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git remote add upstream https://github.com/ronitsingh10/FineTune.git
+          git fetch --no-tags upstream main
+          if git merge-base --is-ancestor upstream/main HEAD; then
+            echo 'Official source is already included.' >> "$GITHUB_STEP_SUMMARY"
+            echo 'changed=false' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          PENDING_PR="$(gh pr list --state open --head automation/upstream --json number --jq '.[0].number // empty')"
+          if [ -n "$PENDING_PR" ]; then
+            printf 'Review pending update PR #%s before preparing another update.\n' "$PENDING_PR" >> "$GITHUB_STEP_SUMMARY"
+            echo 'changed=false' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          PREVIOUS_HEAD="$(git ls-remote origin refs/heads/automation/upstream | cut -f1)"
+          git switch -c automation/upstream
+          if ! git merge --no-ff --no-edit upstream/main; then
+            printf '## Official update requires manual conflict resolution\n\n' >> "$GITHUB_STEP_SUMMARY"
+            git diff --name-only --diff-filter=U >> "$GITHUB_STEP_SUMMARY"
+            git merge --abort
+            echo 'Main and the existing update branch were not changed.' >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+          MERGED_SHA="$(git rev-parse HEAD)"
+          git push --force-with-lease="refs/heads/automation/upstream:$PREVIOUS_HEAD" \
+            origin HEAD:refs/heads/automation/upstream
+          cat > "$RUNNER_TEMP/upstream-pr.md" <<'BODY'
+          合并官方 `ronitsingh10/FineTune:main` 的新源码，保留本仓库的中文界面、独立延迟及微调控件。
+
+          此 PR 不会自动合并。创建后工作流会直接验证合并结果，并在下方报告测试、汉化覆盖及定制构建结果。请确认结果和音频行为后再合并。
+
+          如果工作流遇到合并冲突，会停止并在 Actions 的运行摘要中列出文件，不覆盖 main。升级流程见 `UPSTREAM_SYNC.zh-CN.md`。
+          BODY
+          PR_URL="$(gh pr create --base main --head automation/upstream \
+            --title '同步官方 FineTune 更新（保留中文及独立延迟）' \
+            --body-file "$RUNNER_TEMP/upstream-pr.md")"
+          PR_NUMBER="${PR_URL##*/}"
+          printf 'changed=true\nsha=%s\npr=%s\n' "$MERGED_SHA" "$PR_NUMBER" >> "$GITHUB_OUTPUT"
+          printf 'Prepared %s at `%s`.\n' "$PR_URL" "$MERGED_SHA" >> "$GITHUB_STEP_SUMMARY"
+  verify:
+    needs: prepare
+    if: needs.prepare.outputs.changed == 'true'
+    uses: ./.github/workflows/ci.yml
+    with:
+      ref: ${{ needs.prepare.outputs.sha }}
+  report:
+    needs: [prepare, verify]
+    if: always() && needs.prepare.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Report this exact merge's build result
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ needs.prepare.outputs.pr }}
+          CHECK_RESULT: ${{ needs.verify.result }}
+          CHECKED_SHA: ${{ needs.prepare.outputs.sha }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          printf '定制版验证结果：**%s**\n\n已验证提交：`%s`\n\n测试、本地化检查、安装包和详细日志：%s\n\n本 PR 需要人工审核后合并，不会自动安装到 Mac。\n' \
+            "$CHECK_RESULT" "$CHECKED_SHA" "$RUN_URL" > "$RUNNER_TEMP/check-result.md"
+          gh pr comment "$PR_NUMBER" --body-file "$RUNNER_TEMP/check-result.md"

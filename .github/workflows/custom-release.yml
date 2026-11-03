@@ -1,0 +1,55 @@
+name: Release Chinese delay edition
+
+on:
+  push:
+    tags: ['cn-v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing custom release tag, for example cn-v1.9.0-r1
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    uses: ./.github/workflows/ci.yml
+    with:
+      ref: ${{ inputs.tag || github.ref }}
+  publish:
+    needs: verify
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          name: FineTune-CN-macOS
+          path: release
+      - name: Publish only the tested custom build
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+        run: |
+          case "$RELEASE_TAG" in cn-v*) ;; *) echo 'Expected a cn-v custom tag'; exit 1 ;; esac
+          cat > "$RUNNER_TEMP/release-notes.md" <<'NOTES'
+          FineTune 中文延迟增强版：独立设备延迟、±10/±50 ms 按钮及数字方向键调节。
+
+          此安装包由当前标签的源码构建，已通过单元测试、本地化检查和包完整性检查。
+          请先退出官方 FineTune，再运行本版本；定制版使用独立配置目录。
+          本版本采用本地签名，未经过 Apple 公证；首次打开可能需要在系统设置中确认打开。
+          官方更新会通过更新 PR 合并到源码，不会直接覆盖此版本。详见仓库的 UPSTREAM_SYNC.zh-CN.md。
+          NOTES
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release upload "$RELEASE_TAG" release/FineTune-Delay-macOS.zip --clobber
+          else
+            gh release create "$RELEASE_TAG" release/FineTune-Delay-macOS.zip \
+              --verify-tag --title "FineTune 中文延迟增强版 $RELEASE_TAG" \
+              --notes-file "$RUNNER_TEMP/release-notes.md"
+          fi
