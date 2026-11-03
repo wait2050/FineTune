@@ -115,6 +115,20 @@ struct DelayCalibrationTests {
 @Suite("Delay calibration — recording and lifecycle")
 @MainActor
 struct DelayCalibrationLifecycleTests {
+    @Test("The microphone callback can run on an audio delivery queue without MainActor isolation")
+    func backgroundRecordingCallback() async throws {
+        let recording = CalibrationRecording(sampleRate: 48_000)
+        await Task.detached {
+            let format = AVAudioFormat(standardFormatWithSampleRate: 48_000, channels: 1)!
+            let buffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: 480)!
+            buffer.frameLength = 480
+            buffer.floatChannelData![0].initialize(repeating: 0.125, count: 480)
+            let callback = CalibrationMicrophone.recordingCallback(recording)
+            callback(buffer, AVAudioTime(hostTime: AVAudioTime.hostTime(forSeconds: 10)))
+        }.value
+        #expect(try recording.snapshot().samples == [Float](repeating: 0.125, count: 480))
+    }
+
     @Test("Recording copies a channel and retains the hardware capture timestamp")
     func recordingSnapshot() throws {
         let format = AVAudioFormat(standardFormatWithSampleRate: 48_000, channels: 1)!

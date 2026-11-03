@@ -11,6 +11,39 @@ enum CalibrationSourceProcess {
     static var activePID: pid_t?
     static let argument = "--delay-calibration-source"
 
+    /// Opt-in hardware smoke check for support/development. It never requests
+    /// permission, plays sound, or writes microphone samples to disk.
+    static func checkMicrophone() -> Never {
+        guard AVCaptureDevice.authorizationStatus(for: .audio) == .authorized else {
+            print("Microphone check skipped: permission has not been granted.")
+            exit(3)
+        }
+        do {
+            let ids = try AudioObjectID.readDeviceList()
+            let defaultID = try? AudioDeviceID.readDefaultInputDevice()
+            let candidates = ids.filter {
+                [.builtIn, .usb, .thunderbolt].contains($0.readTransportType())
+                    && $0.streamCount(scope: kAudioObjectPropertyScopeInput) > 0
+            }
+            guard let id = candidates.first(where: { $0 == defaultID }) ?? candidates.first else {
+                throw CalibrationFailure.inputUnavailable
+            }
+            let device = AudioDevice(id: id, uid: try id.readDeviceUID(), name: try id.readDeviceName(), icon: nil, supportsAutoEQ: false)
+            let capture = CalibrationMicrophone()
+            try capture.start(device: device)
+            RunLoop.main.run(until: Date(timeIntervalSinceNow: 1.2))
+            capture.stop()
+            guard let recording = capture.recording else { throw CalibrationFailure.noSignal }
+            let snapshot = try recording.snapshot()
+            guard snapshot.samples.count >= Int(recording.sampleRate / 2) else { throw CalibrationFailure.noSignal }
+            print("Microphone callback verified: \(snapshot.samples.count) frames at \(Int(recording.sampleRate)) Hz; recording discarded.")
+            exit(0)
+        } catch {
+            print("Microphone check failed: \(error.localizedDescription)")
+            exit(2)
+        }
+    }
+
     static func runChild() -> Never {
         do {
             let engine = AVAudioEngine()
@@ -115,9 +148,7 @@ final class CalibrationMicrophone {
         }
         let recording = CalibrationRecording(sampleRate: format.sampleRate)
         self.recording = recording
-        input.installTap(onBus: 0, bufferSize: 1024, format: format) { buffer, time in
-            recording.append(buffer, time: time)
-        }
+        input.installTap(onBus: 0, bufferSize: 1024, format: format, block: Self.recordingCallback(recording))
         installed = true
         try engine.start()
     }
@@ -125,6 +156,13 @@ final class CalibrationMicrophone {
     func stop() {
         engine.stop()
         if installed { engine.inputNode.removeTap(onBus: 0); installed = false }
+    }
+
+    // AVAudioNodeTapBlock does not promise Sendable in the SDK. Construct the
+    // callback outside MainActor explicitly, otherwise Swift 6 inserts an actor
+    // assertion when AVAudioEngine invokes it on its audio delivery queue.
+    nonisolated static func recordingCallback(_ recording: CalibrationRecording) -> @Sendable (AVAudioPCMBuffer, AVAudioTime) -> Void {
+        { buffer, time in recording.append(buffer, time: time) }
     }
 }
 

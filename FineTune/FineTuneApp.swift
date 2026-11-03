@@ -104,6 +104,9 @@ struct FineTuneApp: App {
         if CommandLine.arguments.contains(CalibrationSourceProcess.argument) {
             CalibrationSourceProcess.runChild()
         }
+        if CommandLine.arguments.contains("--check-calibration-microphone") {
+            CalibrationSourceProcess.checkMicrophone()
+        }
         let isTestHost = FineTuneRuntime.isUnitTestHost
         if !isTestHost && FineTuneRuntime.isDelayEdition,
            NSWorkspace.shared.runningApplications.contains(where: { $0.bundleIdentifier == "com.finetuneapp.FineTune" }) {

@@ -2,8 +2,8 @@ import SwiftUI
 
 @MainActor
 struct DelayCalibrationView: View {
-    @Bindable var audioEngine: AudioEngine
-    @Bindable var settings: SettingsManager
+    let audioEngine: AudioEngine
+    let settings: SettingsManager
     @State private var model = DelayCalibrationModel()
     @State private var firstUID = ""
     @State private var secondUID = ""
