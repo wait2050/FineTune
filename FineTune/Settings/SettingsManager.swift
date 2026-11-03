@@ -126,6 +126,7 @@ final class SettingsManager {
         // Opt-in, UID-keyed manual delay compensation. Missing keys preserve old behavior.
         var outputDelayEnabled: Bool = false
         var outputDelaysMilliseconds: [String: Double] = [:]
+        var calibrationTestLevels: [String: Double] = [:]
         var deviceIconOverrides: [String: String] = [:]  // device UID → SF Symbol name
 
         // Device priority (ordered device UIDs, highest priority first)
@@ -185,6 +186,8 @@ final class SettingsManager {
             outputDelayEnabled = try c.decodeIfPresent(Bool.self, forKey: .outputDelayEnabled) ?? false
             outputDelaysMilliseconds = (try c.decodeIfPresent([String: Double].self, forKey: .outputDelaysMilliseconds) ?? [:])
                 .mapValues { OutputDelayControl.sanitize($0) }
+            calibrationTestLevels = (try c.decodeIfPresent([String: Double].self, forKey: .calibrationTestLevels) ?? [:])
+                .mapValues { CalibrationTestLevel.sanitize($0) }
             deviceIconOverrides = try c.decodeIfPresent([String: String].self, forKey: .deviceIconOverrides) ?? [:]
             outputDevicePriority = try c.decodeIfPresent([String].self, forKey: .outputDevicePriority) ?? []
             inputDevicePriority = try c.decodeIfPresent([String].self, forKey: .inputDevicePriority) ?? []
@@ -226,6 +229,15 @@ final class SettingsManager {
 
     func setOutputDelayMilliseconds(_ milliseconds: Double, for uid: String) {
         settings.outputDelaysMilliseconds[uid] = OutputDelayControl.sanitize(milliseconds)
+        scheduleSave()
+    }
+
+    func calibrationTestLevel(for uid: String) -> Double {
+        settings.calibrationTestLevels[uid] ?? CalibrationTestLevel.defaultValue
+    }
+
+    func setCalibrationTestLevel(_ level: Double, for uid: String) {
+        settings.calibrationTestLevels[uid] = CalibrationTestLevel.sanitize(level)
         scheduleSave()
     }
 
@@ -874,6 +886,7 @@ final class SettingsManager {
         settings.softwareDeviceSavedVolumes.removeAll()
         settings.outputDelayEnabled = false
         settings.outputDelaysMilliseconds.removeAll()
+        settings.calibrationTestLevels.removeAll()
         settings.deviceVolumeTierOverride.removeAll()
         settings.deviceIconOverrides.removeAll()
         settings.outputDevicePriority.removeAll()

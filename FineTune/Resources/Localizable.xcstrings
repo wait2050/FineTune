@@ -342,6 +342,17 @@
         }
       }
     },
+    "Adjust each test volume independently, including while testing. This does not change your music volume. Start low and increase gradually.": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "可分别调整两个输出的测试音量，测试中也可调节，不影响日常音乐音量。请从较低音量开始逐步提高。"
+          }
+        }
+      }
+    },
     "AirPods Pro": {
       "extractionState": "manual",
       "localizations": {
@@ -2091,6 +2102,17 @@
         }
       }
     },
+    "Lower test volume for %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "降低%@的测试音量"
+          }
+        }
+      }
+    },
     "Lower volume for the app playing audio": {
       "extractionState": "manual",
       "localizations": {
@@ -2802,6 +2824,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "请先从菜单栏退出官方 FineTune，再打开延迟增强版。一次只能运行一个版本来控制音频。"
+          }
+        }
+      }
+    },
+    "Raise test volume for %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "提高%@的测试音量"
           }
         }
       }
@@ -3561,6 +3594,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "测试已停止"
+          }
+        }
+      }
+    },
+    "Test volume": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "测试音量"
+          }
+        }
+      }
+    },
+    "Test volume for %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@的测试音量"
           }
         }
       }

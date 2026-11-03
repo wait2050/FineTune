@@ -1,6 +1,18 @@
 import Accelerate
 import Foundation
 
+nonisolated enum CalibrationTestLevel {
+    static let defaultValue = 0.2
+    static let range = 0.1...1.0
+    static func sanitize(_ value: Double) -> Double {
+        value.isFinite ? min(range.upperBound, max(range.lowerBound, value)) : defaultValue
+    }
+    static func gain(level: Double, deviceGain: Float, muted: Bool) -> Float {
+        guard !muted, deviceGain.isFinite else { return 0 }
+        return Float(sanitize(level)) * min(1, max(0, deviceGain))
+    }
+}
+
 /// Signal generation and analysis contain no device or settings side effects.
 nonisolated enum CalibrationProbe {
     static let sampleRate = 48_000.0
@@ -26,13 +38,15 @@ nonisolated enum CalibrationProbe {
         // A quiet pilot keeps Bluetooth and FineTune's soft-start gate awake.
         for i in samples.indices {
             let edge = min(1, min(Double(i), Double(samples.count - i - 1)) / (sampleRate * 0.1))
-            samples[i] = Float(sin(2 * .pi * 400 * Double(i) / sampleRate) * 0.001 * edge)
+            samples[i] = Float(sin(2 * .pi * 400 * Double(i) / sampleRate) * 0.002 * edge)
         }
         for device in 0..<2 {
             let probe = chirp(rate: sampleRate, second: device == 1)
             for slot in slots[device] {
                 let start = Int(slot * sampleRate)
-                for i in probe.indices { samples[start + i] += 0.16 * probe[i] }
+                // Output-specific test gains default to 20%, preserving the old
+                // probe level, with up to 5× headroom for quiet AirPods pickup.
+                for i in probe.indices { samples[start + i] += 0.8 * probe[i] }
             }
         }
         return samples

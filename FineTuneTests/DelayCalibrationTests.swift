@@ -124,7 +124,7 @@ struct DelayCalibrationTests {
     func probeGain() {
         let samples = CalibrationProbe.playback()
         #expect(samples.count == 720_000)
-        #expect(samples.allSatisfy { $0.isFinite && abs($0) <= 0.162 })
+        #expect(samples.allSatisfy { $0.isFinite && abs($0) <= 0.802 })
         #expect(samples.first == 0)
         #expect(samples.last == 0)
     }

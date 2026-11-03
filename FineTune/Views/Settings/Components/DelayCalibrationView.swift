@@ -34,11 +34,18 @@ struct DelayCalibrationView: View {
                     }
                 }
                 HStack(spacing: 14) {
-                    devicePicker("First output", selection: $firstUID, devices: outputs)
+                    VStack(spacing: 10) {
+                        devicePicker("First output", selection: $firstUID, devices: outputs)
+                        if let first { testVolumeControl(device: first) }
+                    }
                     Image(systemName: "arrow.left.arrow.right").foregroundStyle(.tertiary).padding(.top, 15)
-                    devicePicker("Second output", selection: $secondUID, devices: outputs)
+                    VStack(spacing: 10) {
+                        devicePicker("Second output", selection: $secondUID, devices: outputs)
+                        if let second { testVolumeControl(device: second) }
+                    }
                 }
-                .disabled(model.isRunning || audioEngine.isUpdatingOutputDelay)
+                Text("Adjust each test volume independently, including while testing. This does not change your music volume. Start low and increase gradually.")
+                    .font(.system(size: 10)).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
 
                 HStack(spacing: 8) {
                     Button { start(acoustic: false) } label: {
@@ -117,7 +124,36 @@ struct DelayCalibrationView: View {
                 ForEach(devices) { device in Text(device.name).tag(device.uid) }
             }
             .labelsHidden().frame(maxWidth: .infinity).accessibilityLabel(Text(title))
+            .disabled(model.isRunning || audioEngine.isUpdatingOutputDelay)
         }
+    }
+
+    private func testVolumeControl(device: AudioDevice) -> some View {
+        let level = settings.calibrationTestLevel(for: device.uid)
+        let binding = Binding(get: { settings.calibrationTestLevel(for: device.uid) },
+                              set: { settings.setCalibrationTestLevel($0, for: device.uid) })
+        return VStack(spacing: 5) {
+            HStack {
+                Text("Test volume").font(.system(size: 10)).foregroundStyle(.secondary)
+                Spacer(minLength: 8)
+                Text(level, format: .percent.precision(.fractionLength(0)))
+                    .font(.system(size: 11, weight: .semibold, design: .monospaced)).foregroundStyle(.tint)
+            }
+            HStack(spacing: 6) {
+                Button { binding.wrappedValue -= 0.05 } label: { Image(systemName: "minus") }
+                    .disabled(level <= CalibrationTestLevel.range.lowerBound)
+                    .accessibilityLabel(Text(L10n.format("Lower test volume for %@", device.name)))
+                Slider(value: binding, in: CalibrationTestLevel.range, step: 0.05)
+                    .accessibilityLabel(Text(L10n.format("Test volume for %@", device.name)))
+                    .accessibilityValue(Text(level, format: .percent.precision(.fractionLength(0))))
+                Button { binding.wrappedValue += 0.05 } label: { Image(systemName: "plus") }
+                    .disabled(level >= CalibrationTestLevel.range.upperBound)
+                    .accessibilityLabel(Text(L10n.format("Raise test volume for %@", device.name)))
+            }
+            .buttonStyle(.borderless)
+        }
+        .padding(10)
+        .background(DesignTokens.Colors.recessedBackground, in: RoundedRectangle(cornerRadius: 7))
     }
 
     private func resultCard(_ result: DelayCalibrationResult) -> some View {
@@ -173,8 +209,10 @@ struct DelayCalibrationView: View {
                     captureAuthorized: audioEngine.permission.status == .authorized,
                     outputGains: {
                         [first, second].map { device in
-                            if audioEngine.deviceVolumeMonitor.muteStates[device.id] ?? false { return 0 }
-                            return audioEngine.deviceVolumeMonitor.outputProcessingGain(for: device.id)
+                            CalibrationTestLevel.gain(
+                                level: settings.calibrationTestLevel(for: device.uid),
+                                deviceGain: audioEngine.deviceVolumeMonitor.outputProcessingGain(for: device.id),
+                                muted: audioEngine.deviceVolumeMonitor.muteStates[device.id] ?? false)
                         }
                     })
     }
