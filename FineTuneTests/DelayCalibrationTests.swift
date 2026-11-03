@@ -4,6 +4,24 @@ import Testing
 
 @Suite("Delay calibration — matched filtering and validation")
 struct DelayCalibrationTests {
+    @Test("Temporary AVAudioEngine wrappers do not appear as calibration outputs")
+    func filtersInternalWrappers() {
+        #expect(AudioDeviceMonitor.isInternalAggregate(name: "CADefaultDeviceAggregate-1234-0", isAggregate: true))
+        #expect(AudioDeviceMonitor.isInternalAggregate(name: "FineTuneDelay-1234", isAggregate: true))
+    }
+
+    @Test("User-created multi-output devices remain selectable")
+    func preservesUserAggregates() {
+        #expect(!AudioDeviceMonitor.isInternalAggregate(name: "Multi-Output Device", isAggregate: true))
+        #expect(!AudioDeviceMonitor.isInternalAggregate(name: "My Studio Aggregate", isAggregate: true))
+    }
+
+    @Test("A name prefix alone never hides a physical or virtual non-aggregate device")
+    func preservesNonAggregates() {
+        #expect(!AudioDeviceMonitor.isInternalAggregate(name: "FineTune-USB", isAggregate: false))
+        #expect(!AudioDeviceMonitor.isInternalAggregate(name: "BlackHole 2ch", isAggregate: false))
+    }
+
     private func recording(rate: Double = 8_000, first: [Double] = [0.08, 0.08, 0.08],
                            second: [Double] = [0.31, 0.31, 0.31], inverted: Bool = false,
                            echo: Bool = false) -> [Float] {

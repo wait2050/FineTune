@@ -101,8 +101,12 @@ struct DelayCalibrationView: View {
         .onAppear { chooseDefaults() }
         .onDisappear { model.cancel() }
         .onChange(of: selectionKey) { _, _ in model.clear(); applied = false }
-        .onChange(of: outputs) { _, _ in model.clear(); chooseDefaults() }
-        .onChange(of: audioEngine.inputDevices) { _, _ in model.clear(); chooseDefaults() }
+        .onChange(of: outputs) { _, _ in
+            if !validPair { model.clear(); applied = false; chooseDefaults() }
+        }
+        .onChange(of: audioEngine.inputDevices) { _, _ in
+            if microphone == nil { model.clear(); chooseDefaults() }
+        }
     }
 
     private func devicePicker(_ title: LocalizedStringKey, selection: Binding<String>, devices: [AudioDevice]) -> some View {

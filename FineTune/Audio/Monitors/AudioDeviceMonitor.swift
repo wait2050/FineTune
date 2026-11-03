@@ -6,6 +6,10 @@ import os
 @Observable
 @MainActor
 final class AudioDeviceMonitor: AudioDeviceProviding {
+    nonisolated static func isInternalAggregate(name: String, isAggregate: Bool) -> Bool {
+        isAggregate && (name.hasPrefix("FineTune-") || name.hasPrefix("FineTuneDelay-")
+                        || name.hasPrefix("CADefaultDeviceAggregate-"))
+    }
     // MARK: - Output Devices
 
     private(set) var outputDevices: [AudioDevice] = []
@@ -158,7 +162,10 @@ final class AudioDeviceMonitor: AudioDeviceProviding {
                 // creating process. Skip them by name prefix so they don't appear in
                 // our own picker. User-created aggregates (Audio MIDI Setup Multi-Output,
                 // etc.) pass through.
-                if deviceID.isAggregateDevice() && (name.hasPrefix("FineTune-") || name.hasPrefix("FineTuneDelay-")) { continue }
+                // AVAudioEngine also creates temporary default-device wrappers
+                // when opening the measurement microphone. These are routing
+                // infrastructure, never a user's physical output choice.
+                if Self.isInternalAggregate(name: name, isAggregate: deviceID.isAggregateDevice()) { continue }
 
                 // Respect the driver's own opt-out. `kAudioDevicePropertyIsHidden` is
                 // how drivers signal "maintenance/utility device, don't show in
