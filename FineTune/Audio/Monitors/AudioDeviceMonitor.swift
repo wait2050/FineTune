@@ -158,7 +158,7 @@ final class AudioDeviceMonitor: AudioDeviceProviding {
                 // creating process. Skip them by name prefix so they don't appear in
                 // our own picker. User-created aggregates (Audio MIDI Setup Multi-Output,
                 // etc.) pass through.
-                if deviceID.isAggregateDevice() && name.hasPrefix("FineTune-") { continue }
+                if deviceID.isAggregateDevice() && (name.hasPrefix("FineTune-") || name.hasPrefix("FineTuneDelay-")) { continue }
 
                 // Respect the driver's own opt-out. `kAudioDevicePropertyIsHidden` is
                 // how drivers signal "maintenance/utility device, don't show in

@@ -34,6 +34,7 @@ final class ProcessTapController: ProcessTapControlling {
     /// Optional device UID to use for stream-specific tap capture.
     /// When nil, tap creation always uses stereo mixdown capture.
     private var preferredTapSourceDeviceUID: String?
+    private let outputDelayControl: OutputDelayControl?
 
     /// Exposes the current tap source device UID for diagnostics and tap source refresh logic.
     /// Non-nil means stream-specific tap; nil means stereo mixdown.
@@ -214,10 +215,12 @@ final class ProcessTapController: ProcessTapControlling {
         app: AudioApp,
         targetDeviceUIDs: [String],
         deviceMonitor: AudioDeviceMonitor? = nil,
-        preferredTapSourceDeviceUID: String? = nil
+        preferredTapSourceDeviceUID: String? = nil,
+        outputDelayControl: OutputDelayControl? = nil
     ) {
         precondition(!targetDeviceUIDs.isEmpty, "Must have at least one target device")
         self.app = app
+        self.outputDelayControl = outputDelayControl
         self.targetDeviceUIDs = targetDeviceUIDs
         self.deviceMonitor = deviceMonitor
         self.preferredTapSourceDeviceUID = preferredTapSourceDeviceUID
@@ -602,7 +605,7 @@ final class ProcessTapController: ProcessTapControlling {
         let description = buildAggregateDescription(
             outputUIDs: targetDeviceUIDs,
             tapUUID: tapDesc.uuid,
-            name: "FineTune-\(app.id)"
+            name: "\(FineTuneRuntime.aggregateNamePrefix)\(app.id)"
         )
 
         var err: OSStatus
@@ -656,6 +659,17 @@ final class ProcessTapController: ProcessTapControlling {
         }
         _lastLoudnessVolume = initial.loudnessVolume
 
+        let delayBuffers: OutputDelayBufferList?
+        do {
+            delayBuffers = try outputDelayControl.map {
+                try OutputDelayBufferList(deviceID: primaryResources.aggregateDeviceID,
+                                          sampleRate: sampleRate, control: $0)
+            }
+        } catch {
+            primaryResources.destroy()
+            throw error
+        }
+
         // Create IO proc with gain processing
         nextCallbackID += 1
         _primaryCallbackID = nextCallbackID
@@ -669,7 +683,7 @@ final class ProcessTapController: ProcessTapControlling {
                 }
                 return
             }
-            self.processAudioCallback(inInputData, to: outOutputData, callbackID: activateCallbackID)
+            self.processAudioCallback(inInputData, to: outOutputData, callbackID: activateCallbackID, delayBuffers: delayBuffers)
         }
         guard err == noErr else {
             cleanupPartialActivation()
@@ -977,7 +991,7 @@ final class ProcessTapController: ProcessTapControlling {
         let description = buildAggregateDescription(
             outputUIDs: outputUIDs,
             tapUUID: tapDesc.uuid,
-            name: "FineTune-\(app.id)-secondary"
+            name: "\(FineTuneRuntime.aggregateNamePrefix)\(app.id)-secondary"
         )
 
         var err: OSStatus
@@ -1034,6 +1048,17 @@ final class ProcessTapController: ProcessTapControlling {
         if !(loudnessCompensator?.isEnabled ?? false) { secLoudness.setEnabled(false) }
         secondaryLoudnessCompensator = secLoudness
 
+        let delayBuffers: OutputDelayBufferList?
+        do {
+            delayBuffers = try outputDelayControl.map {
+                try OutputDelayBufferList(deviceID: secondaryResources.aggregateDeviceID,
+                                          sampleRate: sampleRate, control: $0)
+            }
+        } catch {
+            secondaryResources.destroy()
+            throw error
+        }
+
         nextCallbackID += 1
         _secondaryCallbackID = nextCallbackID
         let secondaryCallbackID = nextCallbackID
@@ -1046,7 +1071,7 @@ final class ProcessTapController: ProcessTapControlling {
                 }
                 return
             }
-            self.processAudioCallback(inInputData, to: outOutputData, callbackID: secondaryCallbackID)
+            self.processAudioCallback(inInputData, to: outOutputData, callbackID: secondaryCallbackID, delayBuffers: delayBuffers)
         }
         guard err == noErr else {
             secondaryResources.destroy()
@@ -1191,7 +1216,7 @@ final class ProcessTapController: ProcessTapControlling {
         let description = buildAggregateDescription(
             outputUIDs: outputUIDs,
             tapUUID: newTapDesc.uuid,
-            name: "FineTune-\(app.id)"
+            name: "\(FineTuneRuntime.aggregateNamePrefix)\(app.id)"
         )
 
         var err: OSStatus
@@ -1209,6 +1234,17 @@ final class ProcessTapController: ProcessTapControlling {
             throw CrossfadeError.deviceNotReady
         }
 
+        let delayBuffers: OutputDelayBufferList?
+        do {
+            delayBuffers = try outputDelayControl.map {
+                try OutputDelayBufferList(deviceID: newResources.aggregateDeviceID,
+                                          sampleRate: (try newResources.aggregateDeviceID.readNominalSampleRate()), control: $0)
+            }
+        } catch {
+            newResources.destroy()
+            throw error
+        }
+
         nextCallbackID += 1
         _primaryCallbackID = nextCallbackID
         let switchCallbackID = nextCallbackID
@@ -1221,7 +1257,7 @@ final class ProcessTapController: ProcessTapControlling {
                 }
                 return
             }
-            self.processAudioCallback(inInputData, to: outOutputData, callbackID: switchCallbackID)
+            self.processAudioCallback(inInputData, to: outOutputData, callbackID: switchCallbackID, delayBuffers: delayBuffers)
         }
         guard err == noErr else {
             newResources.destroy()
@@ -1491,7 +1527,8 @@ final class ProcessTapController: ProcessTapControlling {
     nonisolated private func processAudioCallback(
         _ inputBufferList: UnsafePointer<AudioBufferList>,
         to outputBufferList: UnsafeMutablePointer<AudioBufferList>,
-        callbackID: UInt32
+        callbackID: UInt32,
+        delayBuffers: OutputDelayBufferList? = nil
     ) {
         _lastRenderHostTime = mach_absolute_time()
         _hasRenderedAudio = true
@@ -1504,6 +1541,7 @@ final class ProcessTapController: ProcessTapControlling {
         // Stale callback from a previous generation (e.g., old promoted tap after
         // a second crossfade reassigned _primaryCallbackID) — zero output safely.
         guard isPrimary || isSecondary else {
+            delayBuffers?.reset()
             for buf in outputBuffers {
                 if let data = buf.mData { memset(data, 0, Int(buf.mDataByteSize)) }
             }
@@ -1513,16 +1551,36 @@ final class ProcessTapController: ProcessTapControlling {
         // SAFETY: Mutable cast required by UnsafeMutableAudioBufferListPointer API,
         // but we only read through this pointer. Input buffer data is owned by CoreAudio
         // and valid for callback duration.
-        let inputBuffers = UnsafeMutableAudioBufferListPointer(UnsafeMutablePointer(mutating: inputBufferList))
 
         // Force silence — primary only. During destructive device switch,
         // _forceSilence is set before the old IO proc is torn down.
         if isPrimary && _forceSilence {
+            delayBuffers?.reset()
             for buf in outputBuffers {
                 if let data = buf.mData { memset(data, 0, Int(buf.mDataByteSize)) }
             }
             return
         }
+
+        // Delay the input BEFORE gain/EQ/gating: mute and volume changes must remain
+        // immediate, and the gate must follow audible (delayed) audio, including tails.
+        let effectiveInput: UnsafePointer<AudioBufferList>
+        if _isMuted {
+            delayBuffers?.reset()  // Never replay pre-mute samples after unmuting.
+            effectiveInput = inputBufferList
+        } else if let delayBuffers {
+            guard let delayed = delayBuffers.process(inputBufferList) else {
+                _lastRenderHostTime = 0
+                for buf in outputBuffers {
+                    if let data = buf.mData { memset(data, 0, Int(buf.mDataByteSize)) }
+                }
+                return
+            }
+            effectiveInput = delayed
+        } else {
+            effectiveInput = inputBufferList
+        }
+        let inputBuffers = UnsafeMutableAudioBufferListPointer(UnsafeMutablePointer(mutating: effectiveInput))
 
         // Track peak level for VU meter
         var maxPeak: Float = 0.0

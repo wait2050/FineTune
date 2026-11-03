@@ -8,6 +8,7 @@ import Sparkle
 final class UpdateManager: NSObject, ObservableObject {
     private let updaterController: SPUStandardUpdaterController
 
+    let updatesSupported = !FineTuneRuntime.isDelayEdition && !FineTuneRuntime.isUnitTestHost
     @Published var canCheckForUpdates = false
 
     override init() {
@@ -18,6 +19,8 @@ final class UpdateManager: NSObject, ObservableObject {
             userDriverDelegate: nil
         )
         super.init()
+
+        guard updatesSupported else { return }
 
         // Start updater to enable manual checks, but don't trigger auto-check UI
         try? updaterController.updater.start()
@@ -30,19 +33,20 @@ final class UpdateManager: NSObject, ObservableObject {
 
     /// Check for updates manually
     func checkForUpdates() {
+        guard updatesSupported else { return }
         updaterController.checkForUpdates(nil)
     }
 
     /// Whether automatic update checks are enabled
     var automaticallyChecksForUpdates: Bool {
-        get { updaterController.updater.automaticallyChecksForUpdates }
-        set { updaterController.updater.automaticallyChecksForUpdates = newValue }
+        get { updatesSupported && updaterController.updater.automaticallyChecksForUpdates }
+        set { if updatesSupported { updaterController.updater.automaticallyChecksForUpdates = newValue } }
     }
 
     /// Whether to automatically download updates
     var automaticallyDownloadsUpdates: Bool {
-        get { updaterController.updater.automaticallyDownloadsUpdates }
-        set { updaterController.updater.automaticallyDownloadsUpdates = newValue }
+        get { updatesSupported && updaterController.updater.automaticallyDownloadsUpdates }
+        set { if updatesSupported { updaterController.updater.automaticallyDownloadsUpdates = newValue } }
     }
 
     /// Last update check date

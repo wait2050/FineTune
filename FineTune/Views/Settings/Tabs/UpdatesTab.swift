@@ -25,6 +25,10 @@ struct UpdatesTab: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
+                if !updateManager.updatesSupported {
+                    Text("This local delay edition is updated from its source project. Automatic updates from the official FineTune release are disabled.")
+                        .font(.callout).foregroundStyle(.secondary)
+                }
                 SettingsSection("Software Updates") {
                     SettingsRow(
                         "Automatic updates",
@@ -48,6 +52,7 @@ struct UpdatesTab: View {
                     }
                 }
             }
+            .disabled(!updateManager.updatesSupported)
             .padding(.horizontal, 20)
             .padding(.vertical, 20)
             .frame(maxWidth: .infinity, alignment: .leading)

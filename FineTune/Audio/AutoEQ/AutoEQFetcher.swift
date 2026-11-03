@@ -24,8 +24,7 @@ final class AutoEQFetcher {
     // MARK: - Cache Paths
 
     private static var cacheDirectory: URL {
-        FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-            .appendingPathComponent("FineTune")
+        FineTuneRuntime.defaultSettingsDirectory
     }
 
     private static var catalogCacheURL: URL {

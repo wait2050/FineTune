@@ -92,7 +92,7 @@ final class SettingsManager {
     private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "FineTune", category: "SettingsManager")
 
     struct Settings: Codable {
-        var version: Int = 12
+        var version: Int = 13
         var appVolumes: [String: Float] = [:]
         var appDeviceRouting: [String: String] = [:]  // bundleID → deviceUID
         var appMutes: [String: Bool] = [:]  // bundleID → isMuted
@@ -123,6 +123,9 @@ final class SettingsManager {
         // nil/missing → auto-detect (hardware/ddc/software). Populated only by
         // the user via the device detail sheet's manual override toggle.
         var deviceVolumeTierOverride: [String: VolumeControlTier] = [:]
+        // Opt-in, UID-keyed manual delay compensation. Missing keys preserve old behavior.
+        var outputDelayEnabled: Bool = false
+        var outputDelaysMilliseconds: [String: Double] = [:]
         var deviceIconOverrides: [String: String] = [:]  // device UID → SF Symbol name
 
         // Device priority (ordered device UIDs, highest priority first)
@@ -179,6 +182,9 @@ final class SettingsManager {
                 .filter { $0.value.isFinite && $0.value >= 0 }
                 .mapValues { min($0, 1.0) }
             deviceVolumeTierOverride = try c.decodeIfPresent([String: VolumeControlTier].self, forKey: .deviceVolumeTierOverride) ?? [:]
+            outputDelayEnabled = try c.decodeIfPresent(Bool.self, forKey: .outputDelayEnabled) ?? false
+            outputDelaysMilliseconds = (try c.decodeIfPresent([String: Double].self, forKey: .outputDelaysMilliseconds) ?? [:])
+                .mapValues { OutputDelayControl.sanitize($0) }
             deviceIconOverrides = try c.decodeIfPresent([String: String].self, forKey: .deviceIconOverrides) ?? [:]
             outputDevicePriority = try c.decodeIfPresent([String].self, forKey: .outputDevicePriority) ?? []
             inputDevicePriority = try c.decodeIfPresent([String].self, forKey: .inputDevicePriority) ?? []
@@ -192,7 +198,7 @@ final class SettingsManager {
     }
 
     init(directory: URL? = nil) {
-        let baseDir = directory ?? FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!.appendingPathComponent("FineTune")
+        let baseDir = directory ?? FineTuneRuntime.defaultSettingsDirectory
         self.settingsURL = baseDir.appendingPathComponent("settings.json")
         self.settings = Settings()
         loadFromDisk()
@@ -204,6 +210,22 @@ final class SettingsManager {
 
     func setVolume(for identifier: String, to volume: Float) {
         settings.appVolumes[identifier] = volume
+        scheduleSave()
+    }
+
+    var outputDelayEnabled: Bool { settings.outputDelayEnabled }
+
+    func setOutputDelayEnabled(_ enabled: Bool) {
+        settings.outputDelayEnabled = enabled
+        scheduleSave()
+    }
+
+    func outputDelayMilliseconds(for uid: String) -> Double {
+        settings.outputDelaysMilliseconds[uid] ?? 0
+    }
+
+    func setOutputDelayMilliseconds(_ milliseconds: Double, for uid: String) {
+        settings.outputDelaysMilliseconds[uid] = OutputDelayControl.sanitize(milliseconds)
         scheduleSave()
     }
 
@@ -850,6 +872,8 @@ final class SettingsManager {
         settings.softwareDeviceVolumes.removeAll()
         settings.softwareDeviceMuteStates.removeAll()
         settings.softwareDeviceSavedVolumes.removeAll()
+        settings.outputDelayEnabled = false
+        settings.outputDelaysMilliseconds.removeAll()
         settings.deviceVolumeTierOverride.removeAll()
         settings.deviceIconOverrides.removeAll()
         settings.outputDevicePriority.removeAll()

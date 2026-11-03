@@ -26,7 +26,7 @@ enum OrphanedTapCleanup {
             guard transportType == .aggregate else { continue }
 
             guard let name = try? device.readDeviceName(),
-                  name.hasPrefix("FineTune-") else { continue }
+                  name.hasPrefix(FineTuneRuntime.aggregateNamePrefix) else { continue }
 
             let err = AudioHardwareDestroyAggregateDevice(device)
             if err == noErr {

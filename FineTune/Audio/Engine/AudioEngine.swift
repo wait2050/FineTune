@@ -22,6 +22,10 @@ final class AudioEngine {
     #endif
 
     private var taps: [pid_t: any ProcessTapControlling] = [:]
+    private let outputDelayRegistry: OutputDelayRegistry
+    private(set) var isUpdatingOutputDelay = false
+    private(set) var outputDelayError: String?
+
 
     /// Factory for creating tap controllers. Overridable for testing.
     private let tapFactory: @MainActor (AudioApp, [String], String?) throws -> any ProcessTapControlling
@@ -184,6 +188,8 @@ final class AudioEngine {
     ) {
         self.permission = permission
         let manager = settingsManager
+        let delayRegistry = OutputDelayRegistry(settings: manager)
+        self.outputDelayRegistry = delayRegistry
         self.settingsManager = manager
         self.appListCoordinator = AppListCoordinator(settingsManager: manager)
         self.autoEQProfileManager = autoEQProfileManager
@@ -226,25 +232,20 @@ final class AudioEngine {
         }
         #endif
 
-        // Tap factory: use provided factory or default to ProcessTapController
+        // Default routes still use the original controller. Independent renderers are
+        // created only when the user explicitly enables output-delay compensation.
         if let factory = tapFactory {
             self.tapFactory = factory
         } else {
             self.tapFactory = { app, deviceUIDs, preferredSource in
-                if deviceUIDs.count == 1 {
-                    return ProcessTapController(
-                        app: app,
-                        targetDeviceUID: deviceUIDs[0],
-                        deviceMonitor: realDeviceMonitor,
-                        preferredTapSourceDeviceUID: preferredSource
-                    )
-                } else {
-                    return ProcessTapController(
-                        app: app,
-                        targetDeviceUIDs: deviceUIDs,
-                        deviceMonitor: realDeviceMonitor,
-                        preferredTapSourceDeviceUID: preferredSource
-                    )
+                OutputDelayTapController(
+                    app: app, targetDeviceUIDs: deviceUIDs, sourceUID: preferredSource,
+                    enabled: manager.outputDelayEnabled, registry: delayRegistry
+                ) { targets, source, delay in
+                    ProcessTapController(app: app, targetDeviceUIDs: targets,
+                                         deviceMonitor: realDeviceMonitor,
+                                         preferredTapSourceDeviceUID: source,
+                                         outputDelayControl: delay)
                 }
             }
         }
@@ -785,6 +786,39 @@ final class AudioEngine {
 
     var autoEQPreampEnabled: Bool {
         settingsManager.autoEQPreampEnabled
+    }
+
+    func setOutputDelayMilliseconds(_ milliseconds: Double, for uid: String) {
+        outputDelayRegistry.setMilliseconds(milliseconds, for: uid)
+    }
+
+    func setOutputDelayCompensationEnabled(_ enabled: Bool) async {
+        guard !isUpdatingOutputDelay, settingsManager.outputDelayEnabled != enabled else { return }
+        isUpdatingOutputDelay = true
+        outputDelayError = nil
+        let previous = settingsManager.outputDelayEnabled
+        // New apps appearing while routes rebuild must inherit the requested mode.
+        settingsManager.setOutputDelayEnabled(enabled)
+        defer { isUpdatingOutputDelay = false }
+        do {
+            for (pid, tap) in Array(taps) {
+                guard let delayed = tap as? OutputDelayTapController else { continue }
+                do { try await delayed.setDelayEnabled(enabled) }
+                catch {
+                    // A disappearing app invalidates its pending work normally.
+                    if let current = taps[pid], current === tap { throw error }
+                }
+            }
+        } catch {
+            settingsManager.setOutputDelayEnabled(previous)
+            for tap in Array(taps.values) {
+                if let delayed = tap as? OutputDelayTapController {
+                    do { try await delayed.setDelayEnabled(previous) }
+                    catch { logger.error("Delay rollback failed: \(error.localizedDescription)") }
+                }
+            }
+            outputDelayError = "Could not change output delay mode: \(error.localizedDescription)"
+        }
     }
 
     func setAutoEQPreampEnabled(_ enabled: Bool) {

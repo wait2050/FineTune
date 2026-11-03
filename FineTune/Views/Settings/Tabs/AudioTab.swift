@@ -25,6 +25,7 @@ struct AudioTab: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
+                outputDelaySection
                 volumeSection
                 devicesSection
             }
@@ -131,6 +132,52 @@ struct AudioTab: View {
                 }
             }
         }
+    }
+
+    private var outputDelaySection: some View {
+        SettingsSection("Output Synchronization") {
+            SettingsRow("Manual Delay Compensation",
+                        description: "Align your speakers with individual delays. Switching this mode briefly restarts playback.") {
+                Toggle("", isOn: Binding(
+                    get: { settings.outputDelayEnabled },
+                    set: { value in Task { await audioEngine.setOutputDelayCompensationEnabled(value) } }
+                ))
+                .toggleStyle(.switch)
+                .controlSize(.small)
+                .labelsHidden()
+                .disabled(audioEngine.isUpdatingOutputDelay)
+                .accessibilityLabel("Manual delay compensation")
+            }
+            if let error = audioEngine.outputDelayError {
+                Text(error).font(.caption).foregroundStyle(.red).padding(12)
+            }
+            if settings.outputDelayEnabled {
+                VStack(spacing: 8) {
+                    ForEach(sortedOutputDevices) { device in
+                        OutputDelayDeviceCard(device: device, milliseconds: delayBinding(for: device.uid))
+                    }
+                    HStack(spacing: 6) {
+                        Image(systemName: "keyboard")
+                        Text("Focus a number: ← → 1 ms · Shift 10 ms · Option 50 ms")
+                    }
+                    .font(.system(size: 11))
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.top, 4)
+                    Text("Keep your slowest output at 0 ms and delay the others. Select multiple outputs in the app's output picker. Values save automatically.")
+                        .font(.system(size: 11))
+                        .foregroundStyle(.secondary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .padding(12)
+                .background(DesignTokens.Colors.recessedBackground)
+            }
+        }
+    }
+
+    private func delayBinding(for uid: String) -> Binding<Double> {
+        Binding(get: { settings.outputDelayMilliseconds(for: uid) },
+                set: { audioEngine.setOutputDelayMilliseconds($0, for: uid) })
     }
 
     private func updateSortedDevices() {

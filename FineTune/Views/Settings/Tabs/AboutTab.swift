@@ -28,7 +28,7 @@ struct AboutTab: View {
                     .interpolation(.high)
                     .frame(width: 96, height: 96)
 
-                Text("FineTune")
+                Text(FineTuneRuntime.isDelayEdition ? "FineTune Delay" : "FineTune")
                     .font(.system(size: 22, weight: .semibold))
                     .foregroundStyle(DesignTokens.Colors.textPrimary)
 
